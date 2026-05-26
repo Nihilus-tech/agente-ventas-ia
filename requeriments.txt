@@ -1,0 +1,8 @@
+flask
+langchain==0.2.0
+langchain-community==0.2.0
+langchain-core==0.2.0
+langchain-groq
+langchain-text-splitters
+chromadb
+sentence-transformers
