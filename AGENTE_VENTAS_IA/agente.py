@@ -12,7 +12,8 @@ from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain.chains import create_retrieval_chain
 from langchain_core.prompts import ChatPromptTemplate
 
-os.environ["GROQ_API_KEY"] = "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"
+from dotenv import load_dotenv
+load_dotenv()
 
 print("Cargando base de conocimiento...")
 loader = DirectoryLoader("Transcripciones", glob="*.txt", loader_cls=TextLoader, loader_kwargs={"encoding": "utf-8"})
