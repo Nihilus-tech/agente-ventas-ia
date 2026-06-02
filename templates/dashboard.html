@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GO4MORE — Panel de Control</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f0f4f8;
+            color: #1B4F8A;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: #1B4F8A;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar .logo {
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+        .navbar .logo span { color: #00B5B8; }
+        .navbar .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 20px;
+            font-size: 14px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: background 0.2s;
+        }
+        .navbar .nav-links a:hover { background: rgba(255,255,255,0.15); }
+        .navbar .nav-links a.active { background: #00B5B8; }
+        .navbar .nav-links a.logout { background: #E31E24; }
+
+        /* HEADER */
+        .header {
+            background: linear-gradient(135deg, #1B4F8A, #00B5B8);
+            color: white;
+            padding: 30px;
+        }
+        .header h1 { font-size: 26px; margin-bottom: 5px; }
+        .header p { opacity: 0.85; font-size: 14px; }
+
+        /* CONTENIDO */
+        .contenido { padding: 30px; max-width: 1200px; margin: 0 auto; }
+
+        /* TARJETAS DE MÉTRICAS */
+        .metricas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .tarjeta {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            border-top: 4px solid #00B5B8;
+        }
+        .tarjeta.roja { border-top-color: #E31E24; }
+        .tarjeta.azul { border-top-color: #1B4F8A; }
+        .tarjeta .numero {
+            font-size: 42px;
+            font-weight: bold;
+            color: #00B5B8;
+            margin-bottom: 8px;
+        }
+        .tarjeta.roja .numero { color: #E31E24; }
+        .tarjeta.azul .numero { color: #1B4F8A; }
+        .tarjeta .etiqueta {
+            font-size: 13px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* BOTÓN AGENTE */
+        .btn-agente {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #00B5B8, #1B4F8A);
+            color: white;
+            text-align: center;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,181,184,0.3);
+            transition: transform 0.2s;
+        }
+        .btn-agente:hover { transform: translateY(-2px); }
+
+        /* HISTORIAL */
+        .seccion {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+        }
+        .seccion h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #1B4F8A;
+            border-bottom: 2px solid #00B5B8;
+            padding-bottom: 10px;
+        }
+        .consulta-item {
+            border-left: 3px solid #00B5B8;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            background: #f8fbff;
+            border-radius: 0 8px 8px 0;
+        }
+        .consulta-item .meta {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 6px;
+        }
+        .consulta-item .pregunta {
+            font-weight: bold;
+            color: #1B4F8A;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .consulta-item .respuesta-preview {
+            color: #555;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .badge-tiempo {
+            background: #00B5B8;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+        .sin-datos {
+            text-align: center;
+            color: #999;
+            padding: 30px;
+            font-size: 14px;
+        }
+
+        .hamburger { cursor: pointer; display: flex; flex-direction: column; gap: 5px; }
+.hamburger span { width: 25px; height: 3px; background: white; border-radius: 3px; }
+.sidebar {
+    position: fixed; top: 0; left: -280px;
+    width: 280px; height: 100%;
+    background: #1B4F8A; z-index: 1000;
+    transition: left 0.3s; padding-top: 20px;
+}
+.sidebar.abierto { left: 0; }
+.sidebar-header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px; }
+.sidebar-header .titulo { color: white; font-size: 22px; font-weight: bold; }
+.sidebar-header .titulo span { color: #00B5B8; }
+.sidebar-header .subtitulo { color: rgba(255,255,255,0.6); font-size: 12px; }
+.sidebar a { display: flex; align-items: center; gap: 12px; padding: 14px 20px; color: rgba(255,255,255,0.8); text-decoration: none; font-size: 15px; transition: 0.2s; }
+.sidebar a:hover { background: rgba(255,255,255,0.1); color: white; }
+.sidebar a.active { background: #00B5B8; color: white; }
+.sidebar a.logout { color: #ff6b6b; }
+.overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
+.overlay.activo { display: block; }
+.icono { font-size: 18px; }
+
+/* ===== RESPONSIVE MÓVIL ===== */
+@media (max-width: 768px) {
+    .contenido { padding: 12px; }
+    
+    .header { padding: 20px 15px; }
+    .header h1 { font-size: 18px; }
+    .header p { font-size: 12px; }
+
+    .metricas { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .tarjeta { padding: 15px; }
+    .tarjeta .numero { font-size: 30px; }
+
+    .grid-graficas { grid-template-columns: 1fr; }
+
+    .botones { flex-direction: column; }
+    .btn-limpiar { flex: 1; }
+
+    textarea { height: 100px; font-size: 14px; }
+
+    .consulta-item { padding: 10px; }
+    .consulta-item .pregunta { font-size: 13px; }
+    .consulta-item .respuesta { font-size: 12px; }
+
+    .navbar { padding: 12px 15px; }
+    .logo { font-size: 17px; }
+
+    .sidebar { width: 240px; left: -240px; }
+
+    .btn { padding: 12px; font-size: 14px; }
+
+    .grafica-card { padding: 15px; }
+    .grafica-card h3 { font-size: 14px; }
+
+    .seccion { padding: 15px; }
+    .seccion h2 { font-size: 16px; }
+
+    .btn-agente { font-size: 15px; padding: 15px; }
+}
+
+@media (max-width: 480px) {
+    .metricas { grid-template-columns: 1fr; }
+    .tarjeta .numero { font-size: 26px; }
+    .header h1 { font-size: 16px; }
+    .logo { font-size: 15px; }
+}
+
+    </style>
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="overlay" id="overlay" onclick="cerrarMenu()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="titulo">GO<span>4</span>MORE</div>
+            <div class="subtitulo">Agente IA — English for Life</div>
+            <div style="margin-top:10px; color:rgba(255,255,255,0.7); font-size:12px;">
+                👤 {{ usuario.nombre }}
+            </div>
+        </div>
+        <a href="/" class="active"><span class="icono">📊</span> Dashboard</a>
+        <a href="/agente"><span class="icono">🤖</span> Agente</a>
+        <a href="/historial"><span class="icono">📋</span> Historial</a>
+        <a href="/logout" class="logout"><span class="icono">🚪</span> Cerrar sesión</a>
+        <a href="/metricas"><span class="icono">📈</span> Métricas</a>
+    </div>
+    
+    <nav class="navbar">
+        <div class="hamburger" onclick="toggleMenu()">
+            <span></span><span></span><span></span>
+        </div>
+        <div class="logo">GO<span>4</span>MORE</div>
+    </nav>
+
+<div class="header">
+    <h1>👋 Bienvenido, {{ usuario.nombre }}</h1>
+    <p>Panel de control del Agente de Ventas GO4MORE</p>
+</div>
+
+<div class="contenido">
+
+    <div class="metricas">
+        <div class="tarjeta">
+            <div class="numero">{{ consultas_hoy }}</div>
+            <div class="etiqueta">Consultas hoy</div>
+        </div>
+        <div class="tarjeta roja">
+            <div class="numero">{{ tiempo_promedio }}</div>
+            <div class="etiqueta">ms promedio</div>
+        </div>
+        <div class="tarjeta azul">
+            <div class="numero">{{ ultimas_consultas|length }}</div>
+            <div class="etiqueta">Recientes</div>
+        </div>
+    </div>
+
+    <a href="/agente" class="btn-agente">✨ Ir al Agente de Ventas</a>
+
+    <div class="seccion">
+        <h2>📋 Últimas consultas</h2>
+        {% if ultimas_consultas %}
+            {% for c in ultimas_consultas %}
+            <div class="consulta-item">
+                <div class="meta">
+                    {{ c.fecha.strftime('%d/%m/%Y %H:%M') }}
+                    <span class="badge-tiempo">{{ c.tiempo_ms }}ms</span>
+                </div>
+                <div class="pregunta">📝 {{ c.consulta }}</div>
+                <div class="respuesta-preview">🤖 {{ c.respuesta[:120] }}...</div>
+            </div>
+            {% endfor %}
+            <a href="/historial" style="color:#00B5B8; font-size:13px;">Ver historial completo →</a>
+        {% else %}
+            <div class="sin-datos">
+                Aún no hay consultas registradas.<br>
+                <a href="/agente" style="color:#00B5B8;">¡Usa el agente para comenzar!</a>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+<script>
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('abierto');
+        document.getElementById('overlay').classList.toggle('activo');
+    }
+    function cerrarMenu() {
+        document.getElementById('sidebar').classList.remove('abierto');
+        document.getElementById('overlay').classList.remove('activo');
+    }
+</script>
+</body>
+</html>

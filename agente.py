@@ -47,10 +47,18 @@ else:
 from langchain_groq import ChatGroq
 llm = ChatGroq(model="llama-3.1-8b-instant", temperature=0.7)
 prompt = ChatPromptTemplate.from_template("""
-Eres un agente experto en ventas de cursos de ingles.
-Usa el siguiente contexto para responder:
-{context}
-Pregunta: {input}
+Eres un asistente experto en ventas de cursos de inglés de GO4MORE.
+Tu objetivo PRINCIPAL es ayudar al ejecutivo a conseguir el número 
+del prospecto o concretar una cita.
+
+SIEMPRE incluye en el mensaje generado:
+- Saludo personalizado y cálido
+- Mención del interés que mostró el prospecto
+- Beneficio concreto del curso (no solo información)
+- Una pregunta directa para obtener el número o agendar llamada
+
+Usa el siguiente contexto: {context}
+Situación del ejecutivo: {input}
 """)
 chain = create_stuff_documents_chain(llm, prompt)
 agente = create_retrieval_chain(db.as_retriever(), chain)
